@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Press Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0e0e0e; --paper: #f5f0e8; --cream: #ede8dc;
+      --accent: #c0392b; --gold: #b8860b; --mid: #6b6560; --rule: #ccc5b5;
+      --green: #2e7d52; --admin-bg: #0f1923; --admin-sidebar: #162030;
+      --admin-accent: #c0392b; --admin-text: #e8e0d0; --admin-rule: #243040;
+    }
+    body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+    /* MASTHEAD */
+    .masthead { border-bottom: 3px double var(--ink); padding: 0 40px; }
+    .masthead-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 10px; border-bottom: 1px solid var(--rule); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); }
+    .masthead-top a { color: var(--mid); text-decoration: none; }
+    .masthead-top a:hover { color: var(--accent); }
+    .masthead-top-right { display: flex; gap: 20px; align-items: center; }
+    .masthead-center { text-align: center; padding: 24px 0 18px; border-bottom: 1px solid var(--rule); }
+    .site-name { font-family: 'Playfair Display', serif; font-size: clamp(42px,7vw,88px); font-weight: 900; letter-spacing: -0.02em; line-height: 1; }
+    .site-tagline { font-size: 12px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--mid); margin-top: 6px; }
+    .masthead-nav { display: flex; justify-content: center; gap: 32px; padding: 12px 0; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; }
+    .masthead-nav a { text-decoration: none; color: var(--ink); transition: color 0.2s; }
+    .masthead-nav a:hover { color: var(--accent); }
+    .admin-link { color: var(--accent) !important; font-weight: 500; }
+
+    /* SEARCH */
+    .search-bar-wrap { background: var(--cream); border-bottom: 1px solid var(--rule); padding: 0 40px; display: none; }
+    .search-bar-wrap.open { display: block; }
+    .search-inner { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
+    .search-inner input { flex: 1; background: transparent; border: none; border-bottom: 1.5px solid var(--ink); font-family: 'DM Sans', sans-serif; font-size: 18px; color: var(--ink); padding: 6px 0; outline: none; }
+    .search-inner input::placeholder { color: var(--mid); }
+    .search-close { background: none; border: none; font-size: 22px; color: var(--mid); cursor: pointer; }
+    .search-close:hover { color: var(--accent); }
+    .search-results { padding: 0 0 20px; }
+    .search-result-item { display: flex; gap: 16px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
+    .search-result-item:hover .sr-title { color: var(--accent); }
+    .sr-tag { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: white; padding: 2px 8px; white-space: nowrap; margin-top: 3px; }
+    .sr-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; transition: color 0.2s; }
+    .sr-meta { font-size: 11px; color: var(--mid); margin-top: 2px; }
+    .search-empty { font-size: 14px; color: var(--mid); padding: 16px 0; }
+
+    /* TICKER */
+    .ticker { background: var(--ink); color: var(--paper); padding: 8px 0; overflow: hidden; white-space: nowrap; }
+    .ticker-inner { display: inline-block; animation: ticker 28s linear infinite; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+    .ticker-inner span { margin: 0 48px; }
+    .ticker-inner .dot { color: var(--accent); margin: 0 6px; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* HERO */
+    .hero { display: grid; grid-template-columns: 1fr 1px 380px; padding: 40px; border-bottom: 2px solid var(--ink); }
+    .hero-main { padding-right: 40px; }
+    .hero-divider { background: var(--rule); }
+    .hero-aside { padding-left: 40px; }
+    .release-tag { display: inline-block; background: var(--accent); color: white; font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 10px; margin-bottom: 16px; }
+    .hero-headline { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,52px); font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+    .hero-headline em { font-style: italic; color: var(--accent); }
+    .hero-dateline { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 20px; }
+    .hero-body { font-size: 17px; line-height: 1.7; color: #2a2a2a; }
+    .hero-body p { margin-bottom: 14px; }
+    .read-more { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 2px; transition: gap 0.2s; }
+    .read-more:hover { gap: 14px; }
+    .aside-title { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--mid); border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin-bottom: 20px; }
+    .aside-item { padding: 16px 0; border-bottom: 1px solid var(--rule); }
+    .aside-item:last-child { border-bottom: none; }
+    .aside-item .release-tag { font-size: 9px; margin-bottom: 8px; }
+    .aside-item h3 { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+    .aside-item .meta { font-size: 11px; color: var(--mid); }
+
+    /* GRID */
+    .section-label { padding: 14px 40px; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--mid); border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 16px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+    .grid { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 2px solid var(--ink); }
+    .grid-item { padding: 28px 32px; border-right: 1px solid var(--rule); cursor: pointer; transition: background 0.2s; }
+    .grid-item:last-child { border-right: none; }
+    .grid-item:hover { background: var(--cream); }
+    .grid-item .release-tag { font-size: 9px; margin-bottom: 12px; }
+    .grid-item h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+    .grid-item p { font-size: 14px; line-height: 1.6; color: #444; margin-bottom: 14px; }
+    .grid-item .meta { font-size: 11px; color: var(--mid); }
+
+    /* SUBMIT SECTION */
+    .submit-section { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid var(--ink); }
+    .submit-left { background: var(--ink); color: var(--paper); padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+    .submit-left h2 { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+    .submit-left h2 em { font-style: italic; color: #d4af6a; }
+    .submit-left p { font-size: 15px; line-height: 1.7; color: #ccc5b5; margin-bottom: 16px; }
+    .price-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(212,175,106,0.15); border: 1px solid rgba(212,175,106,0.4); padding: 14px 20px; margin-top: 8px; }
+    .price-badge .price-amount { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: #d4af6a; }
+    .price-badge .price-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #a09070; line-height: 1.4; }
+    .airtable-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 8px 14px; font-size: 11px; letter-spacing: 0.1em; color: #d4af6a; margin-top: 12px; }
+    .submit-right { background: var(--cream); padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--ink); padding: 8px 0; font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--ink); outline: none; transition: border-color 0.2s; appearance: none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    /* PAY BUTTON */
+    .btn-pay { background: var(--green); color: white; border: none; padding: 16px 32px; font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 12px; width: 100%; justify-content: center; margin-top: 8px; }
+    .btn-pay:hover { background: #245f3e; }
+    .btn-pay:disabled { background: #888; cursor: not-allowed; }
+    .btn-pay .pay-icon { font-size: 18px; }
+    .pay-note { font-size: 11px; color: var(--mid); text-align: center; margin-top: 10px; letter-spacing: 0.05em; }
+    .pay-note strong { color: var(--green); }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* PAYMENT SUCCESS BANNER */
+    .payment-success { display: none; background: #eafaf1; border: 1.5px solid var(--green); padding: 14px 18px; margin-bottom: 20px; border-radius: 2px; }
+    .payment-success.show { display: flex; align-items: center; gap: 10px; }
+    .payment-success span { font-size: 13px; color: var(--green); font-weight: 500; }
+
+    /* AD SECTION */
+    .ad-section { display: grid; grid-template-columns: 1fr 1fr; min-height: 320px; border-bottom: 2px solid var(--ink); }
+    .ad-left { background: #1a0a05; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+    .ad-left .ad-eyebrow { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: #d4af6a; margin-bottom: 12px; }
+    .ad-left h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; color: #f5f0e8; line-height: 1.15; margin-bottom: 16px; }
+    .ad-left h2 em { font-style: italic; color: #d4af6a; }
+    .ad-left p { font-size: 14px; line-height: 1.7; color: #b0a090; }
+    .ad-left .ad-perks { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .ad-left .perk { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #c8b898; }
+    .ad-left .perk::before { content: '◆'; color: #d4af6a; font-size: 8px; }
+    .ad-right { background: #f0ebe0; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+    .ad-right h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .ad-right .sub { font-size: 12px; color: var(--mid); letter-spacing: 0.08em; margin-bottom: 28px; }
+    .btn-gold { background: var(--gold); color: white; border: none; padding: 14px 32px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    .btn-gold:hover { background: #9a6f09; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 32px 40px; border-top: 3px double var(--ink); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); }
+    footer .footer-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--ink); display: block; margin-bottom: 8px; text-transform: none; }
+
+    /* MODALS */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(14,14,14,0.72); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--paper); max-width: 700px; width: 100%; max-height: 88vh; overflow-y: auto; border: 2px solid var(--ink); animation: fadeUp 0.25s ease; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 32px 36px 20px; border-bottom: 1px solid var(--rule); }
+    .modal-header h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; line-height: 1.2; }
+    .modal-close { background: none; border: none; font-size: 26px; cursor: pointer; color: var(--mid); line-height: 1; }
+    .modal-body { padding: 28px 36px 36px; }
+    .modal-meta { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 20px; }
+    .modal-content { font-size: 16px; line-height: 1.75; color: #2a2a2a; }
+    .modal-content p { margin-bottom: 16px; }
+    .modal-content h4 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin: 24px 0 8px; }
+
+    /* AD MODAL */
+    .ad-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(14,14,14,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .ad-modal-overlay.open { display: flex; }
+    .ad-modal { background: var(--paper); max-width: 560px; width: 100%; border: 2px solid var(--ink); animation: fadeUp 0.25s ease; }
+    .ad-modal-header { background: var(--ink); color: var(--paper); padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .ad-modal-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; }
+    .ad-modal-header span { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #d4af6a; }
+    .ad-modal-close { background: none; border: none; color: var(--paper); font-size: 24px; cursor: pointer; }
+    .ad-modal-body { padding: 28px; }
+    .ad-packages { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+    .pkg { border: 1.5px solid var(--rule); padding: 12px; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .pkg:hover, .pkg.selected { border-color: var(--gold); background: #fdf9ee; }
+    .pkg .pkg-name { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; }
+    .pkg .pkg-price { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--gold); margin: 4px 0; }
+    .pkg .pkg-desc { font-size: 10px; color: var(--mid); }
+
+    /* ADMIN */
+    .admin-overlay { display: none; position: fixed; inset: 0; z-index: 300; }
+    .admin-overlay.open { display: flex; }
+    .admin-login { position: absolute; inset: 0; background: var(--admin-bg); display: flex; align-items: center; justify-content: center; }
+    .admin-login-box { width: 380px; border: 1px solid var(--admin-rule); padding: 48px 40px; }
+    .admin-login-box h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--admin-text); font-weight: 900; margin-bottom: 6px; }
+    .admin-login-box .sub { font-size: 11px; color: #556; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 32px; }
+    .admin-login-box .form-group label { color: #667; }
+    .admin-login-box .form-group input { color: var(--admin-text); border-bottom-color: var(--admin-rule); }
+    .admin-login-box .form-group input:focus { border-bottom-color: var(--admin-accent); }
+    .btn-admin-login { background: var(--admin-accent); color: white; border: none; width: 100%; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; margin-top: 8px; }
+    .admin-err { color: #e74c3c; font-size: 12px; margin-top: 10px; display: none; }
+    .admin-err.show { display: block; }
+    .admin-panel { display: flex; width: 100%; height: 100%; }
+    .admin-sidebar { width: 220px; background: var(--admin-sidebar); border-right: 1px solid var(--admin-rule); display: flex; flex-direction: column; flex-shrink: 0; }
+    .admin-sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--admin-rule); }
+    .admin-sidebar-logo .logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; color: var(--admin-text); }
+    .admin-sidebar-logo .logo-sub { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: #556; margin-top: 2px; }
+    .admin-nav { flex: 1; padding: 16px 0; }
+    .admin-nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 20px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #778; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+    .admin-nav-item:hover { color: var(--admin-text); background: rgba(255,255,255,0.04); }
+    .admin-nav-item.active { color: var(--admin-text); border-left-color: var(--admin-accent); background: rgba(192,57,43,0.1); }
+    .admin-sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--admin-rule); }
+    .btn-logout { background: none; border: 1px solid var(--admin-rule); color: #667; padding: 8px 14px; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; width: 100%; transition: all 0.2s; }
+    .btn-logout:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
+    .admin-main { flex: 1; background: var(--admin-bg); overflow-y: auto; }
+    .admin-topbar { background: var(--admin-sidebar); border-bottom: 1px solid var(--admin-rule); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+    .admin-topbar h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--admin-text); }
+    .admin-topbar .tb-right { font-size: 11px; color: #556; }
+    .admin-content { padding: 32px; }
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--admin-sidebar); border: 1px solid var(--admin-rule); padding: 20px; }
+    .stat-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #556; margin-bottom: 8px; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; color: var(--admin-text); }
+    .stat-delta { font-size: 11px; color: #2e7d52; margin-top: 4px; }
+    .admin-table-wrap { background: var(--admin-sidebar); border: 1px solid var(--admin-rule); overflow: hidden; margin-bottom: 32px; }
+    .admin-table-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--admin-rule); }
+    .admin-table-head h3 { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #889; }
+    .admin-table-head .btn-small { background: var(--admin-accent); color: white; border: none; padding: 7px 14px; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #556; padding: 12px 20px; border-bottom: 1px solid var(--admin-rule); font-weight: 400; }
+    td { padding: 14px 20px; font-size: 13px; color: var(--admin-text); border-bottom: 1px solid var(--admin-rule); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+    .badge { display: inline-block; padding: 2px 8px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: white; }
+    .badge-pending { background: #8a6a00; }
+    .badge-paid { background: #1a4a7a; }
+    .badge-published { background: var(--green); }
+    .badge-rejected { background: #7a2020; }
+    .btn-action { background: none; border: 1px solid var(--admin-rule); color: #889; padding: 5px 10px; font-size: 10px; cursor: pointer; margin-right: 4px; transition: all 0.2s; }
+    .btn-action:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
+    .btn-action.approve:hover { border-color: var(--green); color: #5dc68f; }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .settings-card { background: var(--admin-sidebar); border: 1px solid var(--admin-rule); padding: 24px; }
+    .settings-card h3 { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #889; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--admin-rule); }
+    .settings-card .form-group label { color: #667; }
+    .settings-card .form-group input { color: var(--admin-text); border-bottom-color: var(--admin-rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 14px; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--admin-rule); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 13px; color: var(--admin-text); }
+    .toggle { position: relative; width: 38px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: var(--admin-rule); border-radius: 20px; cursor: pointer; transition: 0.3s; }
+    .slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: var(--admin-accent); }
+    .toggle input:checked + .slider::before { transform: translateX(18px); }
+    .admin-tabs { display: none; }
+    .admin-tabs.active-tab { display: block; }
+    .at-loading { text-align: center; padding: 40px; color: #889; font-size: 13px; }
+    .at-record { background: var(--admin-sidebar); border: 1px solid var(--admin-rule); padding: 18px 20px; margin-bottom: 10px; }
+    .at-record h4 { color: var(--admin-text); font-size: 15px; margin-bottom: 6px; }
+    .at-record .at-meta { font-size: 11px; color: #556; }
+    .at-record .at-body { font-size: 12px; color: #889; margin-top: 8px; line-height: 1.5; }
+    .at-record .at-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 32px; right: 32px; background: var(--ink); color: var(--paper); padding: 14px 24px; font-size: 13px; display: none; border-left: 4px solid var(--accent); z-index: 999; max-width: 340px; line-height: 1.5; }
+    .toast.show { display: block; }
+    .toast.gold { border-left-color: var(--gold); }
+    .toast.success { border-left-color: var(--green); }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-divider { display: none; }
+      .hero-aside { padding-left: 0; padding-top: 32px; border-top: 1px solid var(--rule); }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .submit-section, .ad-section { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .ad-packages { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .masthead, .hero, .submit-left, .submit-right, .ad-left, .ad-right { padding: 24px; }
+      .grid { grid-template-columns: 1fr; }
+      .grid-item { border-right: none; border-bottom: 1px solid var(--rule); }
+      .masthead-nav { gap: 14px; flex-wrap: wrap; font-size: 11px; }
+      .admin-sidebar { width: 170px; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-top">
+    <span id="live-date"></span>
+    <div class="masthead-top-right">
+      <a href="#submit">Submit a Release</a>
+      <a href="#advertise">Advertise</a>
+      <a href="#" onclick="openAdmin(); return false;" class="admin-link">⚙ Admin</a>
+    </div>
+    <span>Vol. I &nbsp;·&nbsp; No. 1</span>
+  </div>
+  <div class="masthead-center">
+    <div class="site-name">The Press Room</div>
+    <div class="site-tagline">Official Press Releases &amp; Announcements</div>
+  </div>
+  <nav class="masthead-nav">
+    <a href="#latest">Latest</a>
+    <a href="#company">Company</a>
+    <a href="#product">Product</a>
+    <a href="#media">Media</a>
+    <a href="#submit">Submit</a>
+    <a href="#advertise">Advertise</a>
+    <a href="#" onclick="toggleSearch(); return false;">🔍 Search</a>
+  </nav>
+</header>
+
+<!-- SEARCH -->
+<div class="search-bar-wrap" id="search-bar">
+  <div class="search-inner">
+    <input type="text" id="search-input" placeholder="Search press releases…" oninput="doSearch(this.value)"/>
+    <button class="search-close" onclick="toggleSearch()">×</button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>Breaking: New product launch announced</span><span class="dot">◆</span>
+    <span>Q2 earnings report published</span><span class="dot">◆</span>
+    <span>Partnership agreement signed with leading firm</span><span class="dot">◆</span>
+    <span>Company reaches major milestone</span><span class="dot">◆</span>
+    <span>New executive appointment confirmed</span><span class="dot">◆</span>
+    <span>Breaking: New product launch announced</span><span class="dot">◆</span>
+    <span>Q2 earnings report published</span><span class="dot">◆</span>
+    <span>Partnership agreement signed with leading firm</span><span class="dot">◆</span>
+    <span>Company reaches major milestone</span><span class="dot">◆</span>
+    <span>New executive appointment confirmed</span><span class="dot">◆</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="latest">
+  <div class="hero-main">
+    <span class="release-tag">Featured Release</span>
+    <h1 class="hero-headline">Company Announces <em>Record-Breaking</em> Expansion Into New Markets</h1>
+    <div class="hero-dateline">For Immediate Release &nbsp;·&nbsp; May 19, 2026 &nbsp;·&nbsp; New York, NY</div>
+    <div class="hero-body">
+      <p><strong>NEW YORK, May 19, 2026</strong> — The company today announced a landmark expansion plan that will extend its reach across three new international markets, marking the most significant growth initiative in its history.</p>
+      <p>The announcement follows a record-breaking fiscal year in which revenues surpassed prior forecasts by a substantial margin, driven by increased demand and a broadened product portfolio.</p>
+    </div>
+    <a href="#" class="read-more" onclick="openModal('featured'); return false;">Read Full Release →</a>
+  </div>
+  <div class="hero-divider"></div>
+  <div class="hero-aside">
+    <div class="aside-title">Also In This Issue</div>
+    <div class="aside-item">
+      <span class="release-tag">Product</span>
+      <h3>Next-Generation Platform Launches in Beta</h3>
+      <div class="meta">May 17, 2026 &nbsp;·&nbsp; Technology</div>
+    </div>
+    <div class="aside-item">
+      <span class="release-tag" style="background:#b8860b;">Personnel</span>
+      <h3>Board Appoints New Chief Operating Officer</h3>
+      <div class="meta">May 15, 2026 &nbsp;·&nbsp; Leadership</div>
+    </div>
+    <div class="aside-item">
+      <span class="release-tag" style="background:#2e7d52;">Partnership</span>
+      <h3>Strategic Alliance Formed With Industry Leader</h3>
+      <div class="meta">May 12, 2026 &nbsp;·&nbsp; Business</div>
+    </div>
+  </div>
+</section>
+
+<!-- GRID -->
+<div class="section-label" id="company">All Releases</div>
+<div class="grid">
+  <div class="grid-item" onclick="openModal('release1')">
+    <span class="release-tag" style="background:#2e7d52;">Partnership</span>
+    <h3>Strategic Alliance Formed With Global Industry Leader</h3>
+    <p>The two companies will collaborate on joint development and shared distribution networks across all major territories.</p>
+    <div class="meta">May 12, 2026 &nbsp;·&nbsp; Business Development</div>
+  </div>
+  <div class="grid-item" onclick="openModal('release2')">
+    <span class="release-tag">Product</span>
+    <h3>Next-Generation Platform Now Available in Public Beta</h3>
+    <p>Early access users report significant performance improvements and an intuitive redesigned interface across all devices.</p>
+    <div class="meta">May 17, 2026 &nbsp;·&nbsp; Technology</div>
+  </div>
+  <div class="grid-item" onclick="openModal('release3')">
+    <span class="release-tag" style="background:#b8860b;">Personnel</span>
+    <h3>Board Appoints New Chief Operating Officer</h3>
+    <p>Industry veteran brings more than two decades of operational excellence and global leadership to the role.</p>
+    <div class="meta">May 15, 2026 &nbsp;·&nbsp; Leadership</div>
+  </div>
+</div>
+
+<!-- SUBMIT SECTION -->
+<section class="submit-section" id="submit">
+  <div class="submit-left">
+    <h2>Submit a <em>Press Release</em></h2>
+    <p>Get your announcement in front of executives, journalists, and investors. Fill in the form, complete your payment, and your release goes live within 24 hours.</p>
+    <div class="price-badge">
+      <div>
+        <div class="price-amount">₦30,000</div>
+        <div class="price-label">Per press release<br/>One-time payment</div>
+      </div>
+    </div>
+    <div class="airtable-badge">🟢 &nbsp;Live &nbsp;·&nbsp; Connected to Airtable</div>
+  </div>
+  <div class="submit-right">
+    <!-- Payment success banner -->
+    <div class="payment-success" id="payment-success">
+      <span>✅</span>
+      <span>Payment of ₦30,000 confirmed! Your submission is being sent…</span>
+    </div>
+
+    <div class="form-group"><label>Organization Name *</label><input type="text" placeholder="Your company or organization" id="org-name"/></div>
+    <div class="form-group"><label>Contact Email *</label><input type="email" placeholder="press@yourcompany.com" id="contact-email"/></div>
+    <div class="form-group">
+      <label>Release Category</label>
+      <select id="release-cat">
+        <option value="">Select a category</option>
+        <option>Product Launch</option><option>Partnership</option>
+        <option>Personnel / Leadership</option><option>Financial / Earnings</option>
+        <option>Community / CSR</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Headline *</label><input type="text" placeholder="Your press release headline" id="headline"/></div>
+    <div class="form-group"><label>Release Body *</label><textarea placeholder="Paste your full press release here…" id="release-body"></textarea></div>
+
+    <button class="btn-pay" id="pay-btn" onclick="initiatePayment()">
+      <div class="spinner" id="pay-spinner"></div>
+      <span class="pay-icon">🔒</span>
+      <span id="pay-label">Pay ₦30,000 &amp; Submit Release</span>
+    </button>
+    <div class="pay-note">Secured by <strong>Paystack</strong> &nbsp;·&nbsp; Cards, Bank Transfer &amp; USSD accepted</div>
+  </div>
+</section>
+
+<!-- ADVERTISE SECTION -->
+<section class="ad-section" id="advertise">
+  <div class="ad-left">
+    <div class="ad-eyebrow">Advertising &amp; Sponsorship</div>
+    <h2>Reach Decision-Makers <em>Directly</em></h2>
+    <p>The Press Room is read by executives, journalists, and investors. Place your brand in front of the audience that matters most.</p>
+    <div class="ad-perks">
+      <div class="perk">Featured banner placement on homepage</div>
+      <div class="perk">Sponsored release with full distribution</div>
+      <div class="perk">Newsletter inclusion to 50,000+ subscribers</div>
+      <div class="perk">Dedicated category sponsorship</div>
+    </div>
+  </div>
+  <div class="ad-right">
+    <h3>Enquire About Advertising</h3>
+    <div class="sub">Choose a package or request a custom quote</div>
+    <div class="form-group"><label>Your Name</label><input type="text" placeholder="Full name" id="ad-name"/></div>
+    <div class="form-group"><label>Company</label><input type="text" placeholder="Your organization" id="ad-company"/></div>
+    <div class="form-group"><label>Email Address</label><input type="email" placeholder="you@company.com" id="ad-email"/></div>
+    <div class="form-group"><label>Message (optional)</label><textarea placeholder="Tell us about your campaign goals…" id="ad-message" style="min-height:60px;"></textarea></div>
+    <button class="btn-gold" onclick="openAdModal()">View Packages &amp; Send Enquiry →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-name">The Press Room</span>
+  Official Announcements &nbsp;·&nbsp; All Rights Reserved &nbsp;·&nbsp; 2026
+</footer>
+
+<!-- RELEASE MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-content" id="modal-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- AD MODAL -->
+<div class="ad-modal-overlay" id="ad-modal-overlay" onclick="closeAdModalOutside(event)">
+  <div class="ad-modal">
+    <div class="ad-modal-header">
+      <div><h2>Advertising Packages</h2><span>Select a package to include in your enquiry</span></div>
+      <button class="ad-modal-close" onclick="closeAdModal()">×</button>
+    </div>
+    <div class="ad-modal-body">
+      <div class="ad-packages">
+        <div class="pkg" onclick="selectPkg(this,'Starter – ₦50,000')">
+          <div class="pkg-name">Starter</div><div class="pkg-price">₦50k</div>
+          <div class="pkg-desc">1 sponsored post + sidebar banner 7 days</div>
+        </div>
+        <div class="pkg" onclick="selectPkg(this,'Growth – ₦120,000')">
+          <div class="pkg-name">Growth</div><div class="pkg-price">₦120k</div>
+          <div class="pkg-desc">3 sponsored posts + homepage feature 14 days</div>
+        </div>
+        <div class="pkg" onclick="selectPkg(this,'Enterprise – Custom')">
+          <div class="pkg-name">Enterprise</div><div class="pkg-price">Custom</div>
+          <div class="pkg-desc">Full category sponsor + newsletter + dedicated page</div>
+        </div>
+      </div>
+      <div class="form-group"><label>Selected Package</label><input type="text" id="selected-pkg" placeholder="Click a package above" readonly/></div>
+      <div class="form-group"><label>Additional Notes</label><textarea id="pkg-notes" placeholder="Any specific requirements?" style="min-height:60px;"></textarea></div>
+      <button class="btn-gold" style="width:100%;" onclick="sendAdEnquiry()">Send Advertising Enquiry via Email →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-login" id="admin-login">
+    <div class="admin-login-box">
+      <h2>Press Room</h2>
+      <div class="sub">Admin Access</div>
+      <div class="form-group"><label>Username</label><input type="text" id="admin-user" placeholder="admin"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn-admin-login" onclick="doLogin()">Sign In →</button>
+      <div class="admin-err" id="admin-err">Invalid credentials. Try admin / admin123</div>
+    </div>
+  </div>
+  <div class="admin-panel" id="admin-panel" style="display:none;">
+    <div class="admin-sidebar">
+      <div class="admin-sidebar-logo">
+        <div class="logo-text">The Press Room</div>
+        <div class="logo-sub">Admin Console</div>
+      </div>
+      <div class="admin-nav">
+        <div class="admin-nav-item active" onclick="switchTab('dashboard',this)"><span>📊</span> Dashboard</div>
+        <div class="admin-nav-item" onclick="switchTab('submissions',this)"><span>📥</span> Submissions <span id="pending-badge" style="margin-left:auto;background:#c0392b;color:white;font-size:9px;padding:1px 6px;border-radius:10px;display:none;"></span></div>
+        <div class="admin-nav-item" onclick="switchTab('ads',this)"><span>📣</span> Ad Enquiries</div>
+        <div class="admin-nav-item" onclick="switchTab('settings',this)"><span>⚙</span> Settings</div>
+      </div>
+      <div class="admin-sidebar-footer">
+        <button class="btn-logout" onclick="closeAdmin()">✕ &nbsp;Close Panel</button>
+      </div>
+    </div>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <h1 id="admin-page-title">Dashboard</h1>
+        <div class="tb-right" id="admin-topbar-date"></div>
+      </div>
+      <div class="admin-content">
+
+        <!-- DASHBOARD -->
+        <div class="admin-tabs active-tab" id="tab-dashboard">
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-label">Total Submissions</div><div class="stat-value" id="stat-total">—</div><div class="stat-delta">From Airtable</div></div>
+            <div class="stat-card"><div class="stat-label">Pending Review</div><div class="stat-value" id="stat-pending">—</div><div class="stat-delta" style="color:#d4af6a;">Needs attention</div></div>
+            <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" id="stat-published">—</div><div class="stat-delta">Live releases</div></div>
+            <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue">—</div><div class="stat-delta">₦30k per release</div></div>
+          </div>
+          <div class="admin-table-wrap">
+            <div class="admin-table-head"><h3>Live Submissions from Airtable</h3><button class="btn-small" onclick="loadSubmissions()">↻ Refresh</button></div>
+            <div id="dashboard-records"><div class="at-loading">Loading from Airtable…</div></div>
+          </div>
+        </div>
+
+        <!-- SUBMISSIONS -->
+        <div class="admin-tabs" id="tab-submissions">
+          <div class="admin-table-wrap">
+            <div class="admin-table-head"><h3>All Submissions</h3><button class="btn-small" onclick="loadSubmissions()">↻ Refresh</button></div>
+            <div id="submissions-records"><div class="at-loading">Loading from Airtable…</div></div>
+          </div>
+        </div>
+
+        <!-- ADS -->
+        <div class="admin-tabs" id="tab-ads">
+          <div class="admin-table-wrap">
+            <div class="admin-table-head"><h3>Advertising Enquiries</h3></div>
+            <table>
+              <thead><tr><th>Company</th><th>Contact</th><th>Package</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td>GlobalBrand Co.</td><td>marketing@globalbrand.com</td><td>Growth – ₦120k</td><td><button class="btn-action" onclick="window.open('mailto:marketing@globalbrand.com?subject=Re: Advertising – The Press Room')">Reply</button></td></tr>
+                <tr><td>TechPulse Media</td><td>ads@techpulse.io</td><td>Enterprise – Custom</td><td><button class="btn-action" onclick="window.open('mailto:ads@techpulse.io?subject=Re: Advertising – The Press Room')">Reply</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="admin-tabs" id="tab-settings">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Site Settings</h3>
+              <div class="form-group"><label>Site Name</label><input type="text" value="The Press Room"/></div>
+              <div class="form-group"><label>Tagline</label><input type="text" value="Official Press Releases & Announcements"/></div>
+              <div class="form-group"><label>Contact Email</label><input type="text" value="press@yourcompany.com"/></div>
+              <button style="background:var(--admin-accent);color:white;border:none;padding:10px 20px;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;margin-top:8px;" onclick="showToast('✓ Settings saved.','success')">Save Changes</button>
+            </div>
+            <div class="settings-card">
+              <h3>Payment Settings</h3>
+              <div class="form-group"><label>Submission Price</label><input type="text" value="₦30,000" readonly style="color:#d4af6a;"/></div>
+              <div class="form-group"><label>Paystack Key (Test)</label><input type="text" value="pk_test_****489e" readonly style="color:#5dc68f;"/></div>
+              <div style="background:rgba(46,125,82,0.15);border:1px solid rgba(46,125,82,0.3);padding:12px;font-size:12px;color:#5dc68f;margin-top:12px;">🟢 &nbsp;Paystack connected · ₦30,000 per submission</div>
+            </div>
+            <div class="settings-card">
+              <h3>Airtable Connection</h3>
+              <div class="form-group"><label>Base ID</label><input type="text" value="appjVRYH7jfB79BN3" readonly style="color:#5dc68f;"/></div>
+              <div class="form-group"><label>Table</label><input type="text" value="Table 1" readonly style="color:#5dc68f;"/></div>
+              <div style="background:rgba(46,125,82,0.15);border:1px solid rgba(46,125,82,0.3);padding:12px;font-size:12px;color:#5dc68f;margin-top:12px;">🟢 &nbsp;Connected &amp; syncing live</div>
+            </div>
+            <div class="settings-card">
+              <h3>Publishing Controls</h3>
+              <div class="toggle-row"><span class="toggle-label">Require payment before submit</span><label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label></div>
+              <div class="toggle-row"><span class="toggle-label">Email on new submission</span><label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label></div>
+              <div class="toggle-row"><span class="toggle-label">Breaking news ticker</span><label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label></div>
+              <div class="toggle-row"><span class="toggle-label">Ad enquiry notifications</span><label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── CONFIG
+  const PAYSTACK_KEY = 'pk_test_1a71c17a412fe95d6dc8feeca3f249be0da1489e';
+  const AMOUNT_NGN   = 30000; // naira
+  const AT_TOKEN     = 'pataMb39vmufOpZWq.11bebf42fafafe14d26e91d3c879574b426f7ac64eda724901c60612d09e7850';
+  const AT_BASE      = 'appjVRYH7jfB79BN3';
+  const AT_TABLE     = 'tbl7ltxhmauYPyHKK';
+  const AT_DIRECT    = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`;
+  const AT_PROXY     = (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`;
+  // AT_HEADERS only used for write ops; reads go through proxy
+  const AT_HEADERS   = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
+
+  // GET via cors.sh proxy which forwards all headers including Authorization
+  async function atFetch(url, options = {}) {
+    if (!options.method || options.method === 'GET') {
+      try {
+        const r = await fetch('https://proxy.cors.sh/' + url, {
+          headers: { ...AT_HEADERS, 'x-cors-api-key': 'temp_' + Math.random().toString(36).slice(2) }
+        });
+        if (r.ok) return r;
+      } catch(e) {}
+      // Fallback: corsproxy.io
+      try {
+        const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {
+          headers: { ...AT_HEADERS, 'x-requested-with': 'XMLHttpRequest' }
+        });
+        if (r.ok) return r;
+      } catch(e) {}
+    }
+    return fetch(url, { ...options, headers: { ...AT_HEADERS, ...(options.headers||{}) } });
+  }
+  const AT_URL = AT_DIRECT;
+
+  // ── DATE
+  const dateStr = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('live-date').textContent = dateStr;
+  document.getElementById('admin-topbar-date').textContent = dateStr;
+
+  // ── STATIC RELEASES
+  const releases = {
+    featured: { title:'Company Announces Record-Breaking Expansion Into New Markets', meta:'For Immediate Release · May 19, 2026 · New York, NY', body:`<p><strong>NEW YORK, May 19, 2026</strong> — The company today announced a landmark expansion plan that will extend its reach across three new international markets.</p><p>The announcement follows a record-breaking fiscal year driven by increased demand and a broadened product portfolio.</p><h4>Contact</h4><p>press@yourcompany.com</p>` },
+    release1: { title:'Strategic Alliance Formed With Global Industry Leader', meta:'For Immediate Release · May 12, 2026 · Business Development', body:`<p><strong>NEW YORK, May 12, 2026</strong> — A formal strategic alliance was announced with one of the world's foremost industry leaders.</p><h4>Contact</h4><p>press@yourcompany.com</p>` },
+    release2: { title:'Next-Generation Platform Now Available in Public Beta', meta:'For Immediate Release · May 17, 2026 · Technology', body:`<p><strong>SAN FRANCISCO, May 17, 2026</strong> — Public beta access opened to the next-generation platform with 3× performance improvements.</p><h4>Contact</h4><p>press@yourcompany.com</p>` },
+    release3: { title:'Board Appoints New Chief Operating Officer', meta:'For Immediate Release · May 15, 2026 · Leadership', body:`<p><strong>NEW YORK, May 15, 2026</strong> — A seasoned executive with 22+ years of experience was appointed COO, effective June 1, 2026.</p><h4>Contact</h4><p>press@yourcompany.com</p>` }
+  };
+  const searchData = [
+    { key:'featured', title:'Company Announces Record-Breaking Expansion', cat:'Company', color:'#c0392b', date:'May 19, 2026' },
+    { key:'release1', title:'Strategic Alliance Formed With Global Industry Leader', cat:'Partnership', color:'#2e7d52', date:'May 12, 2026' },
+    { key:'release2', title:'Next-Generation Platform Now Available in Public Beta', cat:'Product', color:'#c0392b', date:'May 17, 2026' },
+    { key:'release3', title:'Board Appoints New Chief Operating Officer', cat:'Personnel', color:'#b8860b', date:'May 15, 2026' },
+  ];
+
+  // ── MODAL
+  function openModal(key) { const r=releases[key]; document.getElementById('modal-title').textContent=r.title; document.getElementById('modal-meta').textContent=r.meta; document.getElementById('modal-content').innerHTML=r.body; document.getElementById('modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
+  function closeModalOutside(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+  // ── SEARCH
+  function toggleSearch() { const b=document.getElementById('search-bar'); b.classList.toggle('open'); if(b.classList.contains('open')){document.getElementById('search-input').focus();document.getElementById('search-results').innerHTML='';} }
+  function doSearch(q) { const res=document.getElementById('search-results'); q=q.trim().toLowerCase(); if(!q){res.innerHTML='';return;} const hits=searchData.filter(r=>r.title.toLowerCase().includes(q)||r.cat.toLowerCase().includes(q)); if(!hits.length){res.innerHTML='<div class="search-empty">No results found.</div>';return;} res.innerHTML=hits.map(r=>`<div class="search-result-item" onclick="openModal('${r.key}');toggleSearch();"><span class="sr-tag" style="background:${r.color}">${r.cat}</span><div><div class="sr-title">${r.title}</div><div class="sr-meta">${r.date}</div></div></div>`).join(''); }
+
+  // ── PAYSTACK → AIRTABLE FLOW
+  function initiatePayment() {
+    const org      = document.getElementById('org-name').value.trim();
+    const email    = document.getElementById('contact-email').value.trim();
+    const cat      = document.getElementById('release-cat').value;
+    const headline = document.getElementById('headline').value.trim();
+    const body     = document.getElementById('release-body').value.trim();
+
+    if (!org)      { showToast('⚠ Please enter your organization name.',''); return; }
+    if (!email || !email.includes('@')) { showToast('⚠ Please enter a valid email address.',''); return; }
+    if (!headline) { showToast('⚠ Please enter a headline.',''); return; }
+    if (!body)     { showToast('⚠ Please paste your press release body.',''); return; }
+
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_KEY,
+      email: email,
+      amount: AMOUNT_NGN * 100, // kobo
+      currency: 'NGN',
+      ref: 'PRESSROOM-' + Date.now(),
+      metadata: {
+        custom_fields: [
+          { display_name: 'Organization', variable_name: 'organization', value: org },
+          { display_name: 'Headline',     variable_name: 'headline',     value: headline },
+          { display_name: 'Category',     variable_name: 'category',     value: cat }
+        ]
+      },
+      onClose: function() {
+        showToast('Payment cancelled. No charge was made.', '');
+      },
+      callback: function(response) {
+        // Payment successful — now submit to Airtable
+        document.getElementById('payment-success').classList.add('show');
+        submitToAirtable({ org, email, cat, headline, body, ref: response.reference });
+      }
+    });
+    handler.openIframe();
+  }
+
+  async function submitToAirtable({ org, email, cat, headline, body, ref }) {
+    const btn = document.getElementById('pay-btn');
+    const spinner = document.getElementById('pay-spinner');
+    const label = document.getElementById('pay-label');
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    label.textContent = 'Sending to Airtable…';
+
+    const MAKE_WEBHOOK = 'https://hook.eu1.make.com/sn2r4pgd3ztj97269himneji3wpxurhm';
+
+    const payload = JSON.stringify({
+      headline: headline,
+      body: body,
+      category: cat,
+      email: email,
+      organization: org,
+      paymentRef: ref,
+      status: 'Todo'
+    });
+
+    let success = false;
+    try {
+      const r = await fetch(MAKE_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+      });
+      if (r.ok) success = true;
+      else console.log('Make webhook failed:', r.status, await r.text());
+    } catch(e) { console.log('Make webhook error:', e); }
+
+    if(success) {
+      ['org-name','contact-email','release-cat','headline','release-body'].forEach(id => document.getElementById(id).value = '');
+      showToast('🎉 Payment confirmed & release submitted! You\'ll hear from us within 24 hours.', 'success');
+    } else {
+      showToast('✗ Payment succeeded but save failed. Contact support with ref: ' + ref, '');
+    }
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Pay ₦30,000 & Submit Release';
+  }
+
+  // ── AIRTABLE ADMIN
+  async function loadSubmissions() {
+    const dashEl = document.getElementById('dashboard-records');
+    const subEl  = document.getElementById('submissions-records');
+    if(dashEl) dashEl.innerHTML = '<div class="at-loading">Loading from Airtable…</div>';
+    if(subEl)  subEl.innerHTML  = '<div class="at-loading">Loading from Airtable…</div>';
+    try {
+      const res = await atFetch(AT_URL + '?maxRecords=100', { headers: AT_HEADERS });
+      if(!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      // Make.com returns array of bundles, each with fields directly
+      let records = [];
+      if(Array.isArray(data)) {
+        records = data.map(item => ({
+          id: item.id || item.ID || '',
+          fields: item.fields || item
+        }));
+      } else {
+        records = data.records || [];
+      }
+      if(dashEl) renderRecords(records, dashEl, 5);
+      if(subEl)  renderRecords(records, subEl, 100);
+      updateStats(records);
+    } catch(err) {
+      const msg = `<div class="at-loading" style="color:#e74c3c;">⚠ Could not load: ${err.message}</div>`;
+      if(dashEl) dashEl.innerHTML = msg;
+      if(subEl)  subEl.innerHTML  = msg;
+    }
+  }
+
+  function renderRecords(records, el, limit) {
+    if(!records.length) { el.innerHTML='<div class="at-loading">No submissions yet. They\'ll appear here after payment.</div>'; return; }
+    const shown = records.slice(0, limit);
+    el.innerHTML = shown.map(r => {
+      const f = r.fields;
+      const status = f.Status || 'Pending';
+      const badgeCls = status==='Published'?'badge-published':status==='Rejected'?'badge-rejected':status==='Paid'?'badge-paid':'badge-pending';
+      const notes = (f.Notes||'');
+      const emailMatch = notes.match(/Email: (.+)/);
+      const refMatch   = notes.match(/Paystack Ref: (.+)/);
+      return `<div class="at-record">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <h4>${f.Name||'(No headline)'}</h4>
+          <span class="badge ${badgeCls}">${status}</span>
+        </div>
+        <div class="at-meta">
+          ${emailMatch?'📧 '+emailMatch[1]+' &nbsp;·&nbsp;':''}
+          ${refMatch?'💳 Ref: '+refMatch[1]+' &nbsp;·&nbsp;':''}
+          📅 ${new Date(r.createdTime).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+        </div>
+        <div class="at-body">${notes.slice(0,200)}${notes.length>200?'…':''}</div>
+        <div class="at-actions">
+          <button class="btn-action approve" onclick="updateStatus('${r.id}','Published')">✓ Publish</button>
+          <button class="btn-action" onclick="updateStatus('${r.id}','Rejected')">✕ Reject</button>
+          <button class="btn-action" onclick="deleteRecord('${r.id}')">🗑 Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+    if(records.length > limit) el.innerHTML += `<div class="at-loading" style="font-size:12px;">Showing ${limit} of ${records.length} total.</div>`;
+  }
+
+  function updateStats(records) {
+    const pending   = records.filter(r=>(r.fields.Status||'Pending')==='Pending').length;
+    const published = records.filter(r=>r.fields.Status==='Published').length;
+    document.getElementById('stat-total').textContent     = records.length;
+    document.getElementById('stat-pending').textContent   = pending;
+    document.getElementById('stat-published').textContent = published;
+    document.getElementById('stat-revenue').textContent   = '₦'+(records.length*30000).toLocaleString();
+    const badge = document.getElementById('pending-badge');
+    if(badge){ if(pending>0){badge.textContent=pending;badge.style.display='inline';}else{badge.style.display='none';} }
+  }
+
+  async function updateStatus(id, status) {
+    try {
+      const res = await fetch(`${AT_DIRECT}/${id}`, { method:'PATCH', headers:AT_HEADERS, body:JSON.stringify({fields:{Status:status}}) });
+      if(!res.ok) throw new Error(await res.text());
+      showToast(`✓ Marked as ${status}.`, status==='Published'?'success':'');
+      loadSubmissions();
+    } catch(err) { showToast('✗ Update failed: '+err.message,''); }
+  }
+
+  async function deleteRecord(id) {
+    if(!confirm('Delete this submission from Airtable? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`${AT_DIRECT}/${id}`, { method:'DELETE', headers:AT_HEADERS });
+      if(!res.ok) throw new Error(await res.text());
+      showToast('🗑 Deleted.',''); loadSubmissions();
+    } catch(err) { showToast('✗ Delete failed: '+err.message,''); }
+  }
+
+  // ── AD MODAL
+  function openAdModal() { const n=document.getElementById('ad-name').value.trim(),e=document.getElementById('ad-email').value.trim(),c=document.getElementById('ad-company').value.trim(); if(!n||!e||!c){alert('Please fill in your name, company, and email first.');return;} document.getElementById('ad-modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeAdModal() { document.getElementById('ad-modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
+  function closeAdModalOutside(e) { if(e.target===document.getElementById('ad-modal-overlay')) closeAdModal(); }
+  function selectPkg(el,name) { document.querySelectorAll('.pkg').forEach(p=>p.classList.remove('selected')); el.classList.add('selected'); document.getElementById('selected-pkg').value=name; }
+  function sendAdEnquiry() {
+    const name=document.getElementById('ad-name').value.trim(), email=document.getElementById('ad-email').value.trim(), company=document.getElementById('ad-company').value.trim(), msg=document.getElementById('ad-message').value.trim(), pkg=document.getElementById('selected-pkg').value.trim(), notes=document.getElementById('pkg-notes').value.trim();
+    if(!pkg){alert('Please select an advertising package.');return;}
+    window.open(`mailto:ads@yourcompany.com?subject=${encodeURIComponent('Advertising Enquiry – '+company+' – '+pkg)}&body=${encodeURIComponent('From: '+name+'\nCompany: '+company+'\nReply-to: '+email+'\nPackage: '+pkg+'\nGoals: '+msg+'\nNotes: '+notes)}`);
+    closeAdModal();
+    showToast('✓ Email client opened with your enquiry.','gold');
+  }
+
+  // ── ADMIN
+  function openAdmin() { document.getElementById('admin-overlay').classList.add('open'); document.getElementById('admin-login').style.display='flex'; document.getElementById('admin-panel').style.display='none'; document.body.style.overflow='hidden'; }
+  function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); document.body.style.overflow=''; }
+  function doLogin() {
+    const u=document.getElementById('admin-user').value.trim(), p=document.getElementById('admin-pass').value;
+    if(u==='admin'&&p==='admin123') {
+      document.getElementById('admin-login').style.display='none';
+      document.getElementById('admin-panel').style.display='flex';
+      document.getElementById('admin-err').classList.remove('show');
+      loadSubmissions();
+    } else { document.getElementById('admin-err').classList.add('show'); }
+  }
+  function switchTab(tab,el) {
+    document.querySelectorAll('.admin-tabs').forEach(t=>t.classList.remove('active-tab'));
+    document.getElementById('tab-'+tab).classList.add('active-tab');
+    document.querySelectorAll('.admin-nav-item').forEach(i=>i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('admin-page-title').textContent=el.textContent.trim().replace(/\d+/g,'').trim();
+    if(tab==='submissions'||tab==='dashboard') loadSubmissions();
+  }
+
+  // ── TOAST
+  function showToast(msg,cls) { const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'+(cls?' '+cls:''); setTimeout(()=>{t.className='toast';},4000); }
+</script>
+</body>
+</html>
