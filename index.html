@@ -391,12 +391,10 @@
     <div class="airtable-badge">🟢 &nbsp;Live &nbsp;·&nbsp; Connected to Airtable</div>
   </div>
   <div class="submit-right">
-    <!-- Payment success banner -->
     <div class="payment-success" id="payment-success">
       <span>✅</span>
       <span>Payment of ₦30,000 confirmed! Your submission is being sent…</span>
     </div>
-
     <div class="form-group"><label>Organization Name *</label><input type="text" placeholder="Your company or organization" id="org-name"/></div>
     <div class="form-group"><label>Contact Email *</label><input type="email" placeholder="press@yourcompany.com" id="contact-email"/></div>
     <div class="form-group">
@@ -410,7 +408,6 @@
     </div>
     <div class="form-group"><label>Headline *</label><input type="text" placeholder="Your press release headline" id="headline"/></div>
     <div class="form-group"><label>Release Body *</label><textarea placeholder="Paste your full press release here…" id="release-body"></textarea></div>
-
     <button class="btn-pay" id="pay-btn" onclick="initiatePayment()">
       <div class="spinner" id="pay-spinner"></div>
       <span class="pay-icon">🔒</span>
@@ -528,7 +525,7 @@
       </div>
       <div class="admin-content">
 
-        <!-- DASHBOARD -->
+        <!-- DASHBOARD TAB -->
         <div class="admin-tabs active-tab" id="tab-dashboard">
           <div class="stats-row">
             <div class="stat-card"><div class="stat-label">Total Submissions</div><div class="stat-value" id="stat-total">—</div><div class="stat-delta">From Airtable</div></div>
@@ -542,7 +539,7 @@
           </div>
         </div>
 
-        <!-- SUBMISSIONS -->
+        <!-- SUBMISSIONS TAB -->
         <div class="admin-tabs" id="tab-submissions">
           <div class="admin-table-wrap">
             <div class="admin-table-head"><h3>All Submissions</h3><button class="btn-small" onclick="loadSubmissions()">↻ Refresh</button></div>
@@ -550,7 +547,7 @@
           </div>
         </div>
 
-        <!-- ADS -->
+        <!-- ADS TAB -->
         <div class="admin-tabs" id="tab-ads">
           <div class="admin-table-wrap">
             <div class="admin-table-head"><h3>Advertising Enquiries</h3></div>
@@ -564,7 +561,7 @@
           </div>
         </div>
 
-        <!-- SETTINGS -->
+        <!-- SETTINGS TAB -->
         <div class="admin-tabs" id="tab-settings">
           <div class="settings-grid">
             <div class="settings-card">
@@ -577,13 +574,13 @@
             <div class="settings-card">
               <h3>Payment Settings</h3>
               <div class="form-group"><label>Submission Price</label><input type="text" value="₦30,000" readonly style="color:#d4af6a;"/></div>
-              <div class="form-group"><label>Paystack Key (Test)</label><input type="text" value="pk_test_****489e" readonly style="color:#5dc68f;"/></div>
+              <div class="form-group"><label>Paystack Key</label><input type="text" value="pk_test_****489e" readonly style="color:#5dc68f;"/></div>
               <div style="background:rgba(46,125,82,0.15);border:1px solid rgba(46,125,82,0.3);padding:12px;font-size:12px;color:#5dc68f;margin-top:12px;">🟢 &nbsp;Paystack connected · ₦30,000 per submission</div>
             </div>
             <div class="settings-card">
               <h3>Airtable Connection</h3>
               <div class="form-group"><label>Base ID</label><input type="text" value="appjVRYH7jfB79BN3" readonly style="color:#5dc68f;"/></div>
-              <div class="form-group"><label>Table</label><input type="text" value="Table 1" readonly style="color:#5dc68f;"/></div>
+              <div class="form-group"><label>Table</label><input type="text" value="press room" readonly style="color:#5dc68f;"/></div>
               <div style="background:rgba(46,125,82,0.15);border:1px solid rgba(46,125,82,0.3);padding:12px;font-size:12px;color:#5dc68f;margin-top:12px;">🟢 &nbsp;Connected &amp; syncing live</div>
             </div>
             <div class="settings-card">
@@ -605,35 +602,30 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── CONFIG
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
   const PAYSTACK_KEY = 'pk_test_1a71c17a412fe95d6dc8feeca3f249be0da1489e';
-  const AMOUNT_NGN   = 30000; // naira
-  const AT_TOKEN     = 'pataMb39vmufOpZWq.11bebf42fafafe14d26e91d3c879574b426f7ac64eda724901c60612d09e7850';
+  const AMOUNT_NGN   = 30000;
+  const CF_WORKER    = 'https://withered-wave-5265.flextheenergygod.workers.dev';
   const AT_BASE      = 'appjVRYH7jfB79BN3';
   const AT_TABLE     = 'tbl7ltxhmauYPyHKK';
-  const AT_DIRECT    = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`;
-  const AT_PROXY     = (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`;
-  // AT_HEADERS only used for write ops; reads go through proxy
-  const AT_HEADERS   = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
+  const AT_URL       = `https://api.airtable.com/v0/${AT_BASE}/${AT_TABLE}`;
 
-  // All Airtable requests go through our Cloudflare Worker (no CORS issues)
-  const CF_WORKER = 'https://withered-wave-5265.flextheenergygod.workers.dev';
-
+  // ── WORKER FETCH (all Airtable calls go through here) ──────────────────────
   async function atFetch(url, options = {}) {
     const workerUrl = CF_WORKER + '?url=' + encodeURIComponent(url);
     return fetch(workerUrl, {
-      ...options,
-      headers: { 'Content-Type': 'application/json' }
+      method: options.method || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: options.body || undefined
     });
   }
-  const AT_URL = AT_DIRECT;
 
-  // ── DATE
+  // ── DATE ────────────────────────────────────────────────────────────────────
   const dateStr = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('live-date').textContent = dateStr;
   document.getElementById('admin-topbar-date').textContent = dateStr;
 
-  // ── STATIC RELEASES
+  // ── STATIC RELEASES ─────────────────────────────────────────────────────────
   const releases = {
     featured: { title:'Company Announces Record-Breaking Expansion Into New Markets', meta:'For Immediate Release · May 19, 2026 · New York, NY', body:`<p><strong>NEW YORK, May 19, 2026</strong> — The company today announced a landmark expansion plan that will extend its reach across three new international markets.</p><p>The announcement follows a record-breaking fiscal year driven by increased demand and a broadened product portfolio.</p><h4>Contact</h4><p>press@yourcompany.com</p>` },
     release1: { title:'Strategic Alliance Formed With Global Industry Leader', meta:'For Immediate Release · May 12, 2026 · Business Development', body:`<p><strong>NEW YORK, May 12, 2026</strong> — A formal strategic alliance was announced with one of the world's foremost industry leaders.</p><h4>Contact</h4><p>press@yourcompany.com</p>` },
@@ -647,16 +639,16 @@
     { key:'release3', title:'Board Appoints New Chief Operating Officer', cat:'Personnel', color:'#b8860b', date:'May 15, 2026' },
   ];
 
-  // ── MODAL
+  // ── MODAL ───────────────────────────────────────────────────────────────────
   function openModal(key) { const r=releases[key]; document.getElementById('modal-title').textContent=r.title; document.getElementById('modal-meta').textContent=r.meta; document.getElementById('modal-content').innerHTML=r.body; document.getElementById('modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
   function closeModalOutside(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 
-  // ── SEARCH
+  // ── SEARCH ──────────────────────────────────────────────────────────────────
   function toggleSearch() { const b=document.getElementById('search-bar'); b.classList.toggle('open'); if(b.classList.contains('open')){document.getElementById('search-input').focus();document.getElementById('search-results').innerHTML='';} }
   function doSearch(q) { const res=document.getElementById('search-results'); q=q.trim().toLowerCase(); if(!q){res.innerHTML='';return;} const hits=searchData.filter(r=>r.title.toLowerCase().includes(q)||r.cat.toLowerCase().includes(q)); if(!hits.length){res.innerHTML='<div class="search-empty">No results found.</div>';return;} res.innerHTML=hits.map(r=>`<div class="search-result-item" onclick="openModal('${r.key}');toggleSearch();"><span class="sr-tag" style="background:${r.color}">${r.cat}</span><div><div class="sr-title">${r.title}</div><div class="sr-meta">${r.date}</div></div></div>`).join(''); }
 
-  // ── PAYSTACK → AIRTABLE FLOW
+  // ── PAYSTACK → AIRTABLE ─────────────────────────────────────────────────────
   function initiatePayment() {
     const org      = document.getElementById('org-name').value.trim();
     const email    = document.getElementById('contact-email').value.trim();
@@ -672,21 +664,11 @@
     const handler = PaystackPop.setup({
       key: PAYSTACK_KEY,
       email: email,
-      amount: AMOUNT_NGN * 100, // kobo
+      amount: AMOUNT_NGN * 100,
       currency: 'NGN',
       ref: 'PRESSROOM-' + Date.now(),
-      metadata: {
-        custom_fields: [
-          { display_name: 'Organization', variable_name: 'organization', value: org },
-          { display_name: 'Headline',     variable_name: 'headline',     value: headline },
-          { display_name: 'Category',     variable_name: 'category',     value: cat }
-        ]
-      },
-      onClose: function() {
-        showToast('Payment cancelled. No charge was made.', '');
-      },
+      onClose: function() { showToast('Payment cancelled. No charge was made.',''); },
       callback: function(response) {
-        // Payment successful — now submit to Airtable
         document.getElementById('payment-success').classList.add('show');
         submitToAirtable({ org, email, cat, headline, body, ref: response.reference });
       }
@@ -695,102 +677,105 @@
   }
 
   async function submitToAirtable({ org, email, cat, headline, body, ref }) {
-    const btn = document.getElementById('pay-btn');
+    const btn     = document.getElementById('pay-btn');
     const spinner = document.getElementById('pay-spinner');
-    const label = document.getElementById('pay-label');
+    const label   = document.getElementById('pay-label');
     btn.disabled = true;
     spinner.style.display = 'block';
     label.textContent = 'Sending to Airtable…';
 
+    // ── Uses EXACT column names from your Airtable table ──
     const payload = JSON.stringify({
       fields: {
-        'fld9UFJBsgBUUPYah': headline,
-        'fldqiBeShtsnF9tK1': body,
-        'fldKQqLf3MFX6mYPy': 'Todo',
-        'fld0XLeCAlp7Anx1T': cat,
-        'fldAm88nBGqMwB0xI': email,
-        'fldbCLRt8ug51YJUa': org,
-        'fldHwyf1db53F10In': ref
+        'Trading Name': headline,
+        'Description':  body,
+        'Status':       'Todo',
+        'Staff Size':   org + ' | ' + email + (cat ? ' | ' + cat : '') + ' | Ref: ' + ref
       }
     });
 
     let success = false;
     try {
-      const workerUrl = CF_WORKER + '?url=' + encodeURIComponent(AT_DIRECT);
-      const r = await fetch(workerUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: payload
-      });
-      if (r.ok) success = true;
-      else console.log('Worker POST failed:', r.status, await r.text());
-    } catch(e) { console.log('Worker POST error:', e); }
-
-    if(success) {
-      ['org-name','contact-email','release-cat','headline','release-body'].forEach(id => document.getElementById(id).value = '');
-      showToast('🎉 Payment confirmed & release submitted! You\'ll hear from us within 24 hours.', 'success');
-    } else {
-      showToast('✗ Payment succeeded but save failed. Contact support with ref: ' + ref, '');
+      const r = await atFetch(AT_URL, { method: 'POST', body: payload });
+      if (r.ok) {
+        success = true;
+      } else {
+        const errText = await r.text();
+        console.error('Airtable error:', r.status, errText);
+      }
+    } catch(e) {
+      console.error('Submit error:', e);
     }
+
+    if (success) {
+      ['org-name','contact-email','release-cat','headline','release-body'].forEach(id => document.getElementById(id).value = '');
+      showToast('🎉 Payment confirmed & release submitted! You\'ll hear from us within 24 hours.','success');
+    } else {
+      showToast('✗ Payment succeeded but save failed. Contact support with ref: ' + ref,'');
+    }
+
     btn.disabled = false;
     spinner.style.display = 'none';
     label.textContent = 'Pay ₦30,000 & Submit Release';
   }
 
-  // ── AIRTABLE ADMIN
+  // ── LOAD SUBMISSIONS FROM AIRTABLE ──────────────────────────────────────────
   async function loadSubmissions() {
     const dashEl = document.getElementById('dashboard-records');
     const subEl  = document.getElementById('submissions-records');
-    if(dashEl) dashEl.innerHTML = '<div class="at-loading">Loading from Airtable…</div>';
-    if(subEl)  subEl.innerHTML  = '<div class="at-loading">Loading from Airtable…</div>';
+    if (dashEl) dashEl.innerHTML = '<div class="at-loading">Loading from Airtable…</div>';
+    if (subEl)  subEl.innerHTML  = '<div class="at-loading">Loading from Airtable…</div>';
+
     try {
-      const res = await atFetch(AT_URL + '?maxRecords=100', { headers: AT_HEADERS });
-      if(!res.ok) throw new Error(await res.text());
+      const res = await atFetch(AT_URL + '?maxRecords=100&sort[0][field]=Trading Name&sort[0][direction]=desc');
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      // Make.com returns array of bundles, each with fields directly
-      let records = [];
-      if(Array.isArray(data)) {
-        records = data.map(item => ({
-          id: item.id || item.ID || '',
-          fields: item.fields || item
-        }));
-      } else {
-        records = data.records || [];
-      }
-      if(dashEl) renderRecords(records, dashEl, 5);
-      if(subEl)  renderRecords(records, subEl, 100);
+      const records = data.records || [];
+
+      if (dashEl) renderRecords(records, dashEl, 5);
+      if (subEl)  renderRecords(records, subEl, 100);
       updateStats(records);
     } catch(err) {
       const msg = `<div class="at-loading" style="color:#e74c3c;">⚠ Could not load: ${err.message}</div>`;
-      if(dashEl) dashEl.innerHTML = msg;
-      if(subEl)  subEl.innerHTML  = msg;
+      if (dashEl) dashEl.innerHTML = msg;
+      if (subEl)  subEl.innerHTML  = msg;
     }
   }
 
+  // ── RENDER RECORDS ──────────────────────────────────────────────────────────
   function renderRecords(records, el, limit) {
-    if(!records.length) { el.innerHTML='<div class="at-loading">No submissions yet. They\'ll appear here after payment.</div>'; return; }
+    if (!records.length) {
+      el.innerHTML = '<div class="at-loading">No submissions yet. They\'ll appear here after payment.</div>';
+      return;
+    }
     const shown = records.slice(0, limit);
     el.innerHTML = shown.map(r => {
-      const f = r.fields;
-      const headline = f['Trading Name'] || f['fld9UFJBsgBUUPYah'] || f.Name || '(No headline)';
-      const description = f['Description'] || f['fldqiBeShtsnF9tK1'] || f.Notes || '';
-      const email = f['General Email'] || f['fldAm88nBGqMwB0xI'] || '';
-      const org = f['Phone'] || f['fldbCLRt8ug51YJUa'] || '';
-      const payRef = f['Payment Reference'] || f['fldHwyf1db53F10In'] || '';
-      const status = f['Status'] || f['fldKQqLf3MFX6mYPy'] || 'Todo';
-      const badgeCls = status==='Published'?'badge-published':status==='Rejected'?'badge-rejected':status==='Done'?'badge-published':status==='In progress'?'badge-paid':'badge-pending';
+      const f        = r.fields;
+      // Map your actual Airtable column names
+      const headline = f['Trading Name'] || '(No headline)';
+      const body     = f['Description']  || '';
+      const staffRaw = f['Staff Size']   || '';   // org | email | cat | ref packed here
+      const status   = f['Status']       || 'Todo';
+
+      const badgeCls = status === 'Done'        ? 'badge-published'
+                     : status === 'In progress' ? 'badge-paid'
+                     : status === 'Todo'        ? 'badge-pending'
+                     : 'badge-pending';
+
+      const date = r.createdTime
+        ? new Date(r.createdTime).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+        : 'Recent';
+
       return `<div class="at-record">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <h4>${headline}</h4>
           <span class="badge ${badgeCls}">${status}</span>
         </div>
         <div class="at-meta">
-          ${email?'📧 '+email+' &nbsp;·&nbsp;':''}
-          ${org?'🏢 '+org+' &nbsp;·&nbsp;':''}
-          ${payRef?'💳 '+payRef+' &nbsp;·&nbsp;':''}
-          📅 ${r.createdTime ? new Date(r.createdTime).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Recent'}
+          ${staffRaw ? '📋 ' + staffRaw + ' &nbsp;·&nbsp; ' : ''}
+          📅 ${date}
         </div>
-        <div class="at-body">${description.slice(0,200)}${description.length>200?'…':''}</div>
+        <div class="at-body">${body.slice(0,200)}${body.length > 200 ? '…' : ''}</div>
         <div class="at-actions">
           <button class="btn-action approve" onclick="updateStatus('${r.id}','Done')">✓ Publish</button>
           <button class="btn-action" onclick="updateStatus('${r.id}','In progress')">↻ In Review</button>
@@ -798,39 +783,48 @@
         </div>
       </div>`;
     }).join('');
-    if(records.length > limit) el.innerHTML += `<div class="at-loading" style="font-size:12px;">Showing ${limit} of ${records.length} total.</div>`;
+
+    if (records.length > limit) {
+      el.innerHTML += `<div class="at-loading" style="font-size:12px;">Showing ${limit} of ${records.length} total.</div>`;
+    }
   }
 
+  // ── UPDATE STATS ────────────────────────────────────────────────────────────
   function updateStats(records) {
-    const pending   = records.filter(r=>(r.fields.Status||'Pending')==='Pending').length;
-    const published = records.filter(r=>r.fields.Status==='Published').length;
+    const pending   = records.filter(r => (r.fields.Status || 'Todo') === 'Todo').length;
+    const published = records.filter(r => r.fields.Status === 'Done').length;
     document.getElementById('stat-total').textContent     = records.length;
     document.getElementById('stat-pending').textContent   = pending;
     document.getElementById('stat-published').textContent = published;
-    document.getElementById('stat-revenue').textContent   = '₦'+(records.length*30000).toLocaleString();
+    document.getElementById('stat-revenue').textContent   = '₦' + (records.length * 30000).toLocaleString();
     const badge = document.getElementById('pending-badge');
-    if(badge){ if(pending>0){badge.textContent=pending;badge.style.display='inline';}else{badge.style.display='none';} }
+    if (badge) { pending > 0 ? (badge.textContent = pending, badge.style.display = 'inline') : (badge.style.display = 'none'); }
   }
 
+  // ── UPDATE / DELETE RECORDS ─────────────────────────────────────────────────
   async function updateStatus(id, status) {
     try {
-      const res = await fetch(CF_WORKER + '?url=' + encodeURIComponent(`${AT_DIRECT}/${id}`), { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:{Status:status}}) });
-      if(!res.ok) throw new Error(await res.text());
-      showToast(`✓ Marked as ${status}.`, status==='Published'?'success':'');
+      const res = await atFetch(`${AT_URL}/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ fields: { 'Status': status } })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      showToast(`✓ Marked as ${status}.`, status === 'Done' ? 'success' : '');
       loadSubmissions();
-    } catch(err) { showToast('✗ Update failed: '+err.message,''); }
+    } catch(err) { showToast('✗ Update failed: ' + err.message, ''); }
   }
 
   async function deleteRecord(id) {
-    if(!confirm('Delete this submission from Airtable? This cannot be undone.')) return;
+    if (!confirm('Delete this submission from Airtable? This cannot be undone.')) return;
     try {
-      const res = await fetch(CF_WORKER + '?url=' + encodeURIComponent(`${AT_DIRECT}/${id}`), { method:'DELETE', headers:{'Content-Type':'application/json'} });
-      if(!res.ok) throw new Error(await res.text());
-      showToast('🗑 Deleted.',''); loadSubmissions();
-    } catch(err) { showToast('✗ Delete failed: '+err.message,''); }
+      const res = await atFetch(`${AT_URL}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(await res.text());
+      showToast('🗑 Deleted.', '');
+      loadSubmissions();
+    } catch(err) { showToast('✗ Delete failed: ' + err.message, ''); }
   }
 
-  // ── AD MODAL
+  // ── AD MODAL ────────────────────────────────────────────────────────────────
   function openAdModal() { const n=document.getElementById('ad-name').value.trim(),e=document.getElementById('ad-email').value.trim(),c=document.getElementById('ad-company').value.trim(); if(!n||!e||!c){alert('Please fill in your name, company, and email first.');return;} document.getElementById('ad-modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeAdModal() { document.getElementById('ad-modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
   function closeAdModalOutside(e) { if(e.target===document.getElementById('ad-modal-overlay')) closeAdModal(); }
@@ -843,28 +837,31 @@
     showToast('✓ Email client opened with your enquiry.','gold');
   }
 
-  // ── ADMIN
+  // ── ADMIN LOGIN ─────────────────────────────────────────────────────────────
   function openAdmin() { document.getElementById('admin-overlay').classList.add('open'); document.getElementById('admin-login').style.display='flex'; document.getElementById('admin-panel').style.display='none'; document.body.style.overflow='hidden'; }
   function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); document.body.style.overflow=''; }
   function doLogin() {
-    const u=document.getElementById('admin-user').value.trim(), p=document.getElementById('admin-pass').value;
-    if(u==='admin'&&p==='admin123') {
+    const u=document.getElementById('admin-user').value.trim();
+    const p=document.getElementById('admin-pass').value;
+    if (u==='admin' && p==='admin123') {
       document.getElementById('admin-login').style.display='none';
       document.getElementById('admin-panel').style.display='flex';
       document.getElementById('admin-err').classList.remove('show');
       loadSubmissions();
-    } else { document.getElementById('admin-err').classList.add('show'); }
+    } else {
+      document.getElementById('admin-err').classList.add('show');
+    }
   }
-  function switchTab(tab,el) {
+  function switchTab(tab, el) {
     document.querySelectorAll('.admin-tabs').forEach(t=>t.classList.remove('active-tab'));
     document.getElementById('tab-'+tab).classList.add('active-tab');
     document.querySelectorAll('.admin-nav-item').forEach(i=>i.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('admin-page-title').textContent=el.textContent.trim().replace(/\d+/g,'').trim();
-    if(tab==='submissions'||tab==='dashboard') loadSubmissions();
+    document.getElementById('admin-page-title').textContent = el.textContent.trim().replace(/\d+/g,'').trim();
+    if (tab==='submissions' || tab==='dashboard') loadSubmissions();
   }
 
-  // ── TOAST
+  // ── TOAST ───────────────────────────────────────────────────────────────────
   function showToast(msg,cls) { const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'+(cls?' '+cls:''); setTimeout(()=>{t.className='toast';},4000); }
 </script>
 </body>
